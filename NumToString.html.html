@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+  <body>
+    <input type="number" id="num-input" />
+    <button onclick="updateNumber()">Update number</button>
+    <p id="num-display" style="font-size: 30px"></p>
+  </body>
+  <script>
+    const ones = [
+      { num: 0, text: "" },
+      { num: 1, text: "one" },
+      { num: 2, text: "two" },
+      { num: 3, text: "three" },
+      { num: 4, text: "four" },
+      { num: 5, text: "five" },
+      { num: 6, text: "six" },
+      { num: 7, text: "seven" },
+      { num: 8, text: "eight" },
+      { num: 9, text: "nine" },
+      { num: 10, text: "ten" },
+    ];
+    const tens = [
+      { num: 0, text: "" },
+      { num: 1, text: "" },
+      { num: 2, text: "twenty" },
+      { num: 3, text: "thirty" },
+      { num: 4, text: "forty" },
+      { num: 5, text: "fifty" },
+      { num: 6, text: "sixty" },
+      { num: 7, text: "seventy" },
+      { num: 8, text: "eighty" },
+      { num: 9, text: "ninety" },
+    ];
+    const teens = [
+      { num: 1, text: "eleven" },
+      { num: 2, text: "twelve" },
+      { num: 3, text: "thirteen" },
+      { num: 4, text: "fourteen" },
+      { num: 5, text: "fifteen" },
+      { num: 6, text: "sixteen" },
+      { num: 7, text: "seventeen" },
+      { num: 8, text: "eighteen" },
+      { num: 9, text: "nineteen" },
+    ];
+    const zeros = [
+      { num: 2, text: "hundred" },
+      { num: 3, text: "thousand" },
+      { num: 6, text: "million" },
+      { num: 9, text: "billion" },
+      { num: 12, text: "trillion" },
+      { num: 15, text: "quadrillion" },
+      { num: 18, text: "quintillion" },
+      { num: 21, text: "sextillion" },
+      { num: 24, text: "septillion" },
+      { num: 27, text: "octillion" },
+      { num: 30, text: "nonillion" },
+      { num: 33, text: "decillion" },
+      { num: 100, text: "googol" },
+    ];
+
+    function getOnes(n) {
+      const result = ones.find((item) => item.num === n).text;
+      return result;
+    }
+
+    function getTens(n) {
+      const result = tens.find((item) => item.num === n).text;
+      return result;
+    }
+    function getTeens(n) {
+      const result = teens.find((item) => item.num === n).text;
+      return result;
+    }
+    function getFlooredZeros(counter) {
+      switch (true) {
+        case counter == 2:
+          return 2;
+        case counter >= 3 && counter < 6:
+          return 3;
+        case counter >= 6 && counter < 9:
+          return 6;
+        case counter >= 9 && counter < 12:
+          return 9;
+        case counter >= 12 && counter < 15:
+          return 12;
+        case counter >= 15 && counter < 18:
+          return 15;
+        default:
+          return 0;
+      }
+    }
+
+    function getZeros(counter) {
+      const result = zeros.find(
+        (item) => item.num === getFlooredZeros(counter)
+      ).text;
+      return result;
+    }
+
+    function removeRightMostDigit(num) {
+      const newNum = Math.trunc(num / 10);
+      return newNum;
+    }
+    //Z is counter zeros
+    function getString(n, z) {
+      switch (z) {
+        case -2:
+          return "";
+        case -1:
+          return getTeens(n);
+        case 0:
+          return getOnes(n);
+
+        case 1:
+          return getTens(n);
+        default:
+          return `${getOnes(n)}  ${getZeros(z)}`;
+      }
+    }
+
+    function secondString(z) {
+      if (z < 2) return "";
+      return getZeros(z);
+    }
+
+    //n -Number
+    //s - string
+
+    function getNumAsString(n, s, mat, counter) {
+      //Recursion finished.
+      if (n < 1) {
+        return "";
+      }
+
+      mat.push([
+        Math.floor(n % 10),
+        counter,
+        counter - getFlooredZeros(counter),
+      ]);
+
+      //Checks if number is a teen (11-19).
+      if (
+        mat[counter][0] == 1 &&
+        (mat[counter][1] == 1 || mat[counter][2] == 1)
+      ) {
+        mat[counter][0] = mat[counter - 1][0];
+        mat[counter][2] = -1;
+        mat[counter - 1][0] = 0;
+        mat[counter - 1][1] = -2;
+        mat[counter - 1][2] = -2;
+      }
+
+      return s.concat(
+        `${getNumAsString(
+          removeRightMostDigit(n),
+          s,
+          mat,
+          counter + 1
+        )} ${getString(mat[counter][0], mat[counter][2])} ${
+          mat[counter][2] == 0 ? secondString(mat[counter][1]) : ""
+        }`
+      );
+    }
+    //Update screen
+    function updateNumber() {
+      let mat = [];
+      const num = document.getElementById("num-input").value;
+      document.getElementById("num-display").textContent = getNumAsString(
+        num,
+        "",
+        mat,
+        0
+      );
+    }
+  </script>
+</html>
